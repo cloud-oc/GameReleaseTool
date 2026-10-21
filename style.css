@@ -82,7 +82,7 @@ input[type=range]{height:18px;margin:8px 0 12px}
 
 /* Shared outline icons, bundled locally. */
 .icon-definitions{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
-.icon{display:inline-block;width:18px;height:18px;flex:none;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.icon{display:inline-block;width:16px;height:16px;max-width:16px;max-height:16px;flex:0 0 16px;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 button:has(>.icon){display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .project-menu button:has(>.icon){display:flex;justify-content:flex-start}
 .icon-button{display:inline-flex;align-items:center;justify-content:center;padding:8px;width:36px;height:36px;min-height:36px;border-color:transparent;background:transparent;color:var(--muted);border-radius:7px}
