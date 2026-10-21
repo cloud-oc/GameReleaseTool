@@ -79,3 +79,29 @@ input[type=range]{height:4px;margin:16px 0 20px}
 
 /* Retain usable hit areas for native sliders. */
 input[type=range]{height:18px;margin:8px 0 12px}
+
+/* Shared outline icons, bundled locally. */
+.icon-definitions{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.icon{display:inline-block;width:18px;height:18px;flex:none;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+button:has(>.icon){display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.project-menu button:has(>.icon){display:flex;justify-content:flex-start}
+.icon-button{display:inline-flex;align-items:center;justify-content:center;padding:8px;width:36px;height:36px;min-height:36px;border-color:transparent;background:transparent;color:var(--muted);border-radius:7px}
+.icon-button:hover{background:var(--soft);color:var(--accent)}
+.platform-help summary.icon-button{padding:8px;list-style:none}
+.platform-help summary.icon-button::-webkit-details-marker{display:none}
+.platform-help[open] summary{background:var(--soft);color:var(--accent)}
+.icon-heading{display:flex;align-items:center;gap:8px}
+.icon-heading .icon{width:16px;height:16px;color:var(--muted)}
+summary>.icon{width:16px;height:16px;margin-right:6px}
+.project-menu summary{display:flex;align-items:center;gap:6px;list-style:none}
+.project-menu summary::-webkit-details-marker{display:none}
+.project-menu summary>.icon{margin:0}
+.toggle-icon{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:7px;color:var(--muted);cursor:pointer}
+.toggle-icon input{position:absolute;width:100%;height:100%;inset:0;margin:0;opacity:0;cursor:pointer}
+.toggle-icon:has(input:checked){background:var(--soft);color:var(--accent)}
+.toggle-icon:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.toggle-icon:hover{background:var(--hover)}
+.theme-control>.icon{color:var(--muted)}
+.section-heading .icon-button{padding:8px;min-height:36px}
+.canvas-foot .icon-button{font-size:inherit}
+@media(pointer:coarse){.icon-button,.toggle-icon,.section-heading .icon-button{min-width:44px;width:44px;min-height:44px;height:44px}}
