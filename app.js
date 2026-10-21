@@ -17,7 +17,7 @@ function drawNow(){
  const s=spec();if(!s)return;
  const host=$('canvas-host');host.replaceChildren();
  if(!s.w||!s.h){host.innerHTML='<div class="empty-canvas"><h2>先定义这个展示位</h2><p>GOG 的项目要求可能不同。填写你收到的实际尺寸后，即可在这里编排素材。</p><button data-action="edit-spec">填写规格</button></div>';return;}
- if(!E.sourceFor(s,images)){host.innerHTML='<div class="empty-canvas"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="9" width="46" height="46" rx="3"/><path d="M9 43l15-16 12 12 7-8 12 12M42 20h1"/></svg><h2>'+(s.kind==='art'?'从一张主视觉开始':s.kind==='logo'?'添加透明 Logo':'为这个展示位添加'+(s.kind==='icon'?'图标':'截图'))+'</h2><p>文件留在你的设备。导入后可以调整裁剪，并预览其他平台。</p><button class="primary" data-action="'+(s.kind==='art'?'upload-art':s.kind==='logo'?'upload-logo':'upload-override')+'">导入图片</button><button class="text-button" data-action="demo">试用示例</button></div>';}
+ if(!E.sourceFor(s,images)){host.innerHTML='<div class="empty-canvas"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="9" width="46" height="46" rx="3"/><path d="M9 43l15-16 12 12 7-8 12 12M42 20h1"/></svg><h2>'+(s.kind==='art'?'从一张主视觉开始':s.kind==='logo'?'添加透明 Logo':'为这个展示位添加'+(s.kind==='icon'?'图标':'截图'))+'</h2><p>导入一张图片，调整构图，即可生成多平台素材。</p><button class="primary" data-action="'+(s.kind==='art'?'upload-art':s.kind==='logo'?'upload-logo':'upload-override')+'">导入图片</button><button class="text-button" data-action="demo">先试试示例</button></div>';}
  else{const cv=E.render(s,layout(s),images,1000);cv.id='main-canvas';cv.setAttribute('aria-label',s.name+'构图预览，可用构图设置调整');host.append(cv);if($('guides').checked){const guides=document.createElement('div');guides.className='guides';host.append(guides);}wireDrag(cv);}
  document.querySelectorAll('[data-preview]').forEach(el=>{const t=state.pack.specs.find(s=>s.id===el.dataset.preview);el.replaceChildren();if(t?.w&&E.sourceFor(t,images))el.append(E.render(t,layout(t),images,200));else el.innerHTML='<span>'+(!t?.w?'待配置':t?.kind==='logo'?'Logo':t?.kind==='screenshot'?'截图':t?.kind==='icon'?'图标':'主视觉')+'</span>';});
 }
@@ -44,6 +44,9 @@ function refresh(){
  if(!list.some(s=>s.id===state.activeId))state.activeId=list[0]?.id;
 
  $('thumbnails').innerHTML=list.map(s=>'<button class="thumbnail '+(s.id===state.activeId?'active':'')+'" data-slot="'+s.id+'" aria-pressed="'+(s.id===state.activeId)+'" aria-label="编辑'+esc(s.name)+'"><div class="thumb-image" data-preview="'+s.id+'"></div><span>'+esc(s.name)+'</span><small>'+(s.w?s.w+' × '+s.h:'未配置')+'</small></button>').join('');
+ $('slot-select').innerHTML=list.map(s=>'<option value="'+s.id+'">'+esc(s.name)+'</option>').join('');
+ $('slot-select').value=state.activeId||'';$('slot-select').disabled=!list.length;
+ $('format-count').textContent=list.length+' 项规格';
  const s=spec();$('editor-content').hidden=!s;$('no-slots').hidden=!!s;
  if(s){
   const l=layout(s);$('slot-title').textContent=s.name;$('slot-size').textContent=s.w?s.w+' × '+s.h+' px · '+s.format.toUpperCase():'待配置尺寸';
@@ -51,7 +54,7 @@ function refresh(){
   $('fit').value=l.fit;$('background').value=l.background;$('showLogo').checked=l.showLogo;
   $('logo-settings').hidden=s.kind!=='art'||s.noLogo;
   $('crop-settings').hidden=s.kind==='logo';
-  $('override-status').textContent=state.assets.overrides[s.id]?'已使用独立图片':'使用'+(s.kind==='art'?'全局主视觉':s.kind==='logo'?'全局 Logo':'独立图片（待添加）');
+  $('override-status').textContent=!E.sourceFor(s,images)?'尚未导入图片':state.assets.overrides[s.id]?'已使用独立图片':'使用'+(s.kind==='art'?'全局主视觉':s.kind==='logo'?'全局 Logo':'独立图片（待添加）');
   $('remove-override').hidden=!state.assets.overrides[s.id];
   $('download-one').disabled=!s.w||!E.sourceFor(s,images);
   updateChecks();
@@ -96,7 +99,7 @@ async function demo(){
  x.fillStyle='#a4c1bb';x.fillRect(2100,0,1740,2160);x.fillStyle='#e9b16c';x.beginPath();x.arc(2500,1050,580,0,Math.PI*2);x.fill();x.fillStyle='#e6ede7';x.fillRect(500,420,920,1320);x.fillStyle='#355e68';x.fillRect(650,570,620,1020);
  x.strokeStyle='#ffffff';x.lineWidth=5;x.strokeRect(120,120,3600,1920);x.font='54px sans-serif';x.fillStyle='#ffffff';x.fillText('COMPOSITION TEST / 3840 × 2160',180,1990);x.fillText('仅用于测试裁剪 · 非游戏美术',180,2080);
  const l=document.createElement('canvas');l.width=1400;l.height=350;const lx=l.getContext('2d');lx.fillStyle='#ffffff';lx.font='bold 156px sans-serif';lx.textAlign='center';lx.fillText('YOUR GAME',700,175);lx.font='52px sans-serif';lx.fillText('示例标题 · 请替换',700,275);
- state.assets.art=c.toDataURL();state.assets.logo=l.toDataURL();images.art=await E.imageFrom(state.assets.art);images.logo=await E.imageFrom(state.assets.logo);state.demoAssets={art:true,logo:true};state.demo=true;for(const s of state.pack.specs)layout(s).reviewed=false;dirty();refresh();say('已加载几何测试图和示例标题；正式交付前请替换。');
+ state.assets.art=c.toDataURL();state.assets.logo=l.toDataURL();images.art=await E.imageFrom(state.assets.art);images.logo=await E.imageFrom(state.assets.logo);state.demoAssets={art:true,logo:true};state.demo=true;for(const s of state.pack.specs)layout(s).reviewed=false;dirty();refresh();say('');
 }
 function wireDrag(cv){let drag;cv.addEventListener('pointerdown',e=>{if(spec().kind==='logo')return;const s=spec(),src=E.sourceFor(s,images);if(!src)return;const st=layout(s),rect=cv.getBoundingClientRect();const g=C.geometry(src.width,src.height,rect.width,rect.height,st.fx,st.fy,st.zoom,st.fit);drag={x:e.clientX,y:e.clientY,fx:st.fx,fy:st.fy,dw:g.dw,dh:g.dh};cv.setPointerCapture(e.pointerId);});
  cv.addEventListener('pointermove',e=>{if(!drag)return;const st=layout(spec());st.fx=C.clamp(drag.fx-(e.clientX-drag.x)/drag.dw,0,1);st.fy=C.clamp(drag.fy-(e.clientY-drag.y)/drag.dh,0,1);for(const key of ['fx','fy']){$(key).value=st[key];$(key+'-value').textContent=Math.round(st[key]*100)+'%';}const updated=E.render(spec(),st,images,1000);cv.getContext('2d').clearRect(0,0,cv.width,cv.height);cv.getContext('2d').drawImage(updated,0,0);});
@@ -166,6 +169,7 @@ async function start(){
  for(const kind of ['art','logo','override'])$(kind+'-file').addEventListener('change',guarded(async e=>{await upload(kind,e.target.files[0]);e.target.value='';}));
  $('project-file').addEventListener('change',guarded(async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(file.size>180000000)throw Error('项目备份过大（超过 180 MB）。');const incoming=await validateProject(JSON.parse(await file.text()));if(!confirm('用导入项目替换当前工作区？请确认当前项目已有备份。'))return;state=incoming.project;images=incoming.decoded;dirty();showWorkspace();say('项目已恢复。');}));
  $('rules-file').addEventListener('change',guarded(async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(file.size>1000000)throw Error('规则文件超过 1 MB。');const pack=C.validatePack(JSON.parse(await file.text()),true);$('rules-json').value=JSON.stringify(pack,null,2);say('规则已载入编辑区，检查后点击“应用规则”。');}));
+ $('slot-select').addEventListener('change',()=>{state.activeId=$('slot-select').value;refresh();dirty();});
  $('project-name').addEventListener('change',()=>{state.name=$('project-name').value.trim().slice(0,80)||'未命名项目';dirty();});
  for(const key of ['fx','fy','zoom','logoX','logoY','logoScale'])$(key).addEventListener('input',()=>{if(!spec())return;layout(spec())[key]=Number($(key).value);$(key+'-value').textContent=key==='zoom'?Number($(key).value).toFixed(2)+'×':Math.round(Number($(key).value)*100)+'%';edit();});
  for(const key of ['fit','background','showLogo'])$(key).addEventListener('input',()=>{layout(spec())[key]=$(key).type==='checkbox'?$(key).checked:$(key).value;edit();});
