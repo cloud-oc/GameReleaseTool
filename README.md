@@ -74,3 +74,8 @@ ZIP 内有各平台目录、`manifest.json`、`READ-ME.txt`。清单记录实际
 - `app.js`：项目、交互、检查与导出。
 
 可以部署到任意静态托管，也可以一直离线使用。工具不会上传图片，不包含遥测或外部 CDN。
+
+## 在线版本与部署
+访问 https://cloud-oc.github.io/GameReleaseTool/ 。
+GitHub Pages 从 main 分支根目录自动发布；推送更新后等待部署完成即可。
+在线版与本地版使用不同的浏览器存储，迁移项目请使用“下载备份”和“打开项目”。
