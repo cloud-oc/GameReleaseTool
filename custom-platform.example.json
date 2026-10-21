@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "platforms": [{"id":"my-store","name":"我的新平台","note":"示例配置，请按真实平台规则修改。"}],
+  "specs": [{"id":"my-store-cover","platform":"my-store","name":"主封面","w":1600,"h":900,"format":"png","kind":"art","provenance":"custom","source":"","checked":"","note":"这只是演示尺寸，不是任何平台的官方要求。","maxBytes":4000000,"bounding":false,"noLogo":false}]
+}
