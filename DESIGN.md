@@ -132,3 +132,9 @@ Use modest rounded rectangles: compact selections and badges, slightly rounded i
 ## v0.3 refinement
 The sidebar now contains platforms only. Thumbnails are the single slot selector. Project actions live in a native details menu; requirement notes use progressive disclosure. Contextual tips are separate from platform requirements.
 Theme tokens now cover surfaces, text, controls and status colors. Dark mode uses neutral blue-gray surfaces and mint actions; default system mode reacts live to OS changes. Theme preference is local and does not enter project data or canvas rendering.
+
+## v0.4 布局
+- 平台改为顶部横向导航，素材缩略图位于画布之前；移除纵向平台栏。
+- 画布与 288px 设置栏共享主区，960px 以下改为上下排布，触屏按钮至少 44px。
+- 操作文案缩短为“导出”“单张下载”“独立素材”“同步焦点”等；同步范围保留在标题提示及操作反馈中。
+- 选择素材后保持键盘焦点，显示 aria-pressed，并在横向容器内滚动到当前选项。

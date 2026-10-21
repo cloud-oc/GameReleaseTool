@@ -17,8 +17,8 @@ function drawNow(){
  const s=spec();if(!s)return;
  const host=$('canvas-host');host.replaceChildren();
  if(!s.w||!s.h){host.innerHTML='<div class="empty-canvas"><h2>先定义这个展示位</h2><p>GOG 的项目要求可能不同。填写你收到的实际尺寸后，即可在这里编排素材。</p><button data-action="edit-spec">填写规格</button></div>';return;}
- if(!E.sourceFor(s,images)){host.innerHTML='<div class="empty-canvas"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="9" width="46" height="46" rx="3"/><path d="M9 43l15-16 12 12 7-8 12 12M42 20h1"/></svg><h2>'+(s.kind==='art'?'从一张主视觉开始':s.kind==='logo'?'添加透明 Logo':'为这个展示位添加'+(s.kind==='icon'?'图标':'截图'))+'</h2><p>文件留在你的设备。导入后可以调整裁剪，并预览其他平台。</p><button class="primary" data-action="'+(s.kind==='art'?'upload-art':s.kind==='logo'?'upload-logo':'upload-override')+'">选择图片</button><button class="text-button" data-action="demo">使用测试图体验</button></div>';}
- else{const cv=E.render(s,layout(s),images,1000);cv.id='main-canvas';cv.setAttribute('aria-label',s.name+'构图预览，可用右侧滑杆调整');host.append(cv);if($('guides').checked){const guides=document.createElement('div');guides.className='guides';host.append(guides);}wireDrag(cv);}
+ if(!E.sourceFor(s,images)){host.innerHTML='<div class="empty-canvas"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="9" width="46" height="46" rx="3"/><path d="M9 43l15-16 12 12 7-8 12 12M42 20h1"/></svg><h2>'+(s.kind==='art'?'从一张主视觉开始':s.kind==='logo'?'添加透明 Logo':'为这个展示位添加'+(s.kind==='icon'?'图标':'截图'))+'</h2><p>文件留在你的设备。导入后可以调整裁剪，并预览其他平台。</p><button class="primary" data-action="'+(s.kind==='art'?'upload-art':s.kind==='logo'?'upload-logo':'upload-override')+'">导入图片</button><button class="text-button" data-action="demo">试用示例</button></div>';}
+ else{const cv=E.render(s,layout(s),images,1000);cv.id='main-canvas';cv.setAttribute('aria-label',s.name+'构图预览，可用构图设置调整');host.append(cv);if($('guides').checked){const guides=document.createElement('div');guides.className='guides';host.append(guides);}wireDrag(cv);}
  document.querySelectorAll('[data-preview]').forEach(el=>{const t=state.pack.specs.find(s=>s.id===el.dataset.preview);el.replaceChildren();if(t?.w&&E.sourceFor(t,images))el.append(E.render(t,layout(t),images,200));else el.innerHTML='<span>'+(!t?.w?'待配置':t?.kind==='logo'?'Logo':t?.kind==='screenshot'?'截图':t?.kind==='icon'?'图标':'主视觉')+'</span>';});
 }
 function updateChecks(){
@@ -35,6 +35,7 @@ function updateChecks(){
  $('export-count').textContent=state.selected.length;
 }
 function refresh(){
+ const focused=document.activeElement;const focusKey=focused?.dataset.platform?['platform',focused.dataset.platform]:focused?.dataset.slot?['slot',focused.dataset.slot]:null;
  $('project-name').value=state.name;
  $('platform-nav').innerHTML=state.pack.platforms.map(p=>{const specs=state.pack.specs.filter(s=>s.platform===p.id);return '<button class="platform-tab '+(state.activePlatform===p.id?'active':'')+'" data-platform="'+p.id+'" aria-pressed="'+(state.activePlatform===p.id)+'"><span>'+esc(p.name)+'</span><span class="count">'+specs.filter(s=>s.w).length+(specs.some(s=>!s.w)?' + 待配':'')+'</span></button>';}).join('');
  $('platform-name').textContent=platform(state.activePlatform)?.name||'平台';
@@ -42,7 +43,7 @@ function refresh(){
  const list=state.pack.specs.filter(s=>s.platform===state.activePlatform);
  if(!list.some(s=>s.id===state.activeId))state.activeId=list[0]?.id;
 
- $('thumbnails').innerHTML=list.map(s=>'<button class="thumbnail '+(s.id===state.activeId?'active':'')+'" data-slot="'+s.id+'" aria-label="编辑'+esc(s.name)+'"><div class="thumb-image" data-preview="'+s.id+'"></div><span>'+esc(s.name)+'</span><small>'+(s.w?s.w+' × '+s.h:'未配置')+'</small></button>').join('');
+ $('thumbnails').innerHTML=list.map(s=>'<button class="thumbnail '+(s.id===state.activeId?'active':'')+'" data-slot="'+s.id+'" aria-pressed="'+(s.id===state.activeId)+'" aria-label="编辑'+esc(s.name)+'"><div class="thumb-image" data-preview="'+s.id+'"></div><span>'+esc(s.name)+'</span><small>'+(s.w?s.w+' × '+s.h:'未配置')+'</small></button>').join('');
  const s=spec();$('editor-content').hidden=!s;$('no-slots').hidden=!!s;
  if(s){
   const l=layout(s);$('slot-title').textContent=s.name;$('slot-size').textContent=s.w?s.w+' × '+s.h+' px · '+s.format.toUpperCase():'待配置尺寸';
@@ -55,9 +56,11 @@ function refresh(){
   $('download-one').disabled=!s.w||!E.sourceFor(s,images);
   updateChecks();
  }
- $('art-label').textContent=images.art?images.art.width+' × '+images.art.height+' · 替换主视觉':'添加主视觉';
- $('logo-label').textContent=images.logo?images.logo.width+' × '+images.logo.height+' · 替换 Logo':'添加 Logo';
+ $('art-label').textContent=images.art?images.art.width+' × '+images.art.height:'添加主视觉';
+ $('logo-label').textContent=images.logo?images.logo.width+' × '+images.logo.height:'添加 Logo';
  $('demo-flag').hidden=!state.demo;draw();
+ if(focusKey){const target=document.querySelector('[data-'+focusKey[0]+'="'+focusKey[1]+'"]');target?.focus({preventScroll:true});}
+ for(const selector of ['#platform-nav .active','#thumbnails .active']){const el=document.querySelector(selector);if(el){const parent=el.parentElement;const r=el.getBoundingClientRect(),pr=parent.getBoundingClientRect();if(r.left<pr.left)parent.scrollLeft-=pr.left-r.left;else if(r.right>pr.right)parent.scrollLeft+=r.right-pr.right;}}
 }
 async function decodeAssets(data){const result={art:null,logo:null,overrides:{}};for(const key of ['art','logo'])if(data[key])result[key]=await E.imageFrom(data[key]);for(const [id,value] of Object.entries(data.overrides||{})){if(Object.keys(result.overrides).length>200)throw Error('独立图片数量过多。');result.overrides[id]=await E.imageFrom(value);}return result;}
 async function validateProject(raw){
