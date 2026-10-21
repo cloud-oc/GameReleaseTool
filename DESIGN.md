@@ -128,3 +128,7 @@ Use modest rounded rectangles: compact selections and badges, slightly rounded i
 - **Don't** render template-derived dimensions as full platform approval or replace source explanations with a green badge.
 - **Don't** treat this provisional implementation as a user-approved visual identity.
 - **Don't** introduce decorative gradients, broad panel shadows or a separate font system without revisiting this documented direction.
+
+## v0.3 refinement
+The sidebar now contains platforms only. Thumbnails are the single slot selector. Project actions live in a native details menu; requirement notes use progressive disclosure. Contextual tips are separate from platform requirements.
+Theme tokens now cover surfaces, text, controls and status colors. Dark mode uses neutral blue-gray surfaces and mint actions; default system mode reacts live to OS changes. Theme preference is local and does not enter project data or canvas rendering.

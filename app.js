@@ -26,6 +26,8 @@ function updateChecks(){
  const issues=E.checks(s,layout(s),images);
  $('checks').innerHTML=issues.map(i=>'<li class="'+i.level+'">'+esc(i.text)+'</li>').join('')||'<li class="ok">当前基础检查无异常。最终仍以平台审核为准。</li>';
  $('slot-note').textContent=s.note;
+ $('asset-tip-title').textContent=s.kind==='screenshot'?'截图宣发贴士':s.kind==='icon'?'图标识别贴士':s.kind==='logo'?'Logo 交付贴士':'主视觉宣发贴士';
+ $('asset-tip').textContent=s.kind==='screenshot'?'每张截图讲清一个玩法亮点，避免多张近似画面。保留真实游戏表现，不把宣传概念图当作实机截图。':s.kind==='icon'?'缩小后检查轮廓是否仍容易辨认。少用细碎文字，优先突出一个有记忆点的游戏元素。':s.kind==='logo'?'使用透明底原图；同时在浅色和深色背景上检查边缘。网站主题仅影响工作区，不会改变导出图片。':s.noLogo?'这类背景由商店叠加界面信息。请使用干净底图，为后续文字和按钮留出空间。':'先传达游戏类型与独特卖点，减少无关元素。不同平台可以调整构图，保留一致的标题与视觉识别。';
  $('provenance').textContent=({official:'已核对公开规格',template:'官方模板尺寸',suggested:'建议工作尺寸',custom:'用户自定义',unverified:'待核实规格'})[s.provenance];
  $('provenance').className='badge '+(s.provenance==='official'?'verified':'pending');
  const source=$('source-link');source.hidden=!s.source;source.href=s.source||'#';source.textContent='查看规格来源'+(s.checked?' · '+s.checked:'');
@@ -39,7 +41,7 @@ function refresh(){
  $('platform-note').textContent=platform(state.activePlatform)?.note||'';
  const list=state.pack.specs.filter(s=>s.platform===state.activePlatform);
  if(!list.some(s=>s.id===state.activeId))state.activeId=list[0]?.id;
- $('slot-list').innerHTML=list.map(s=>'<button class="slot '+(s.id===state.activeId?'active':'')+'" data-slot="'+s.id+'" aria-pressed="'+(s.id===state.activeId)+'"><span>'+esc(s.name)+'</span><small>'+ (s.w?s.w+' × '+s.h:'等待填写尺寸')+'</small></button>').join('');
+
  $('thumbnails').innerHTML=list.map(s=>'<button class="thumbnail '+(s.id===state.activeId?'active':'')+'" data-slot="'+s.id+'" aria-label="编辑'+esc(s.name)+'"><div class="thumb-image" data-preview="'+s.id+'"></div><span>'+esc(s.name)+'</span><small>'+(s.w?s.w+' × '+s.h:'未配置')+'</small></button>').join('');
  const s=spec();$('editor-content').hidden=!s;$('no-slots').hidden=!!s;
  if(s){
@@ -157,7 +159,7 @@ const actions={
 };
 async function start(){
  state=blank();
- document.addEventListener('click',guarded(async e=>{if(busy)return;const a=e.target.closest('[data-action]');if(a){await actions[a.dataset.action]?.();return;}const p=e.target.closest('[data-platform]');if(p){state.activePlatform=p.dataset.platform;refresh();dirty();return;}const s=e.target.closest('[data-slot]');if(s){state.activeId=s.dataset.slot;refresh();dirty();}}));
+ document.addEventListener('click',guarded(async e=>{if(busy)return;const a=e.target.closest('[data-action]');if(a){a.closest('.project-menu')?.removeAttribute('open');await actions[a.dataset.action]?.();return;}const p=e.target.closest('[data-platform]');if(p){state.activePlatform=p.dataset.platform;refresh();dirty();return;}const s=e.target.closest('[data-slot]');if(s){state.activeId=s.dataset.slot;refresh();dirty();}}));
  for(const kind of ['art','logo','override'])$(kind+'-file').addEventListener('change',guarded(async e=>{await upload(kind,e.target.files[0]);e.target.value='';}));
  $('project-file').addEventListener('change',guarded(async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(file.size>180000000)throw Error('项目备份过大（超过 180 MB）。');const incoming=await validateProject(JSON.parse(await file.text()));if(!confirm('用导入项目替换当前工作区？请确认当前项目已有备份。'))return;state=incoming.project;images=incoming.decoded;dirty();showWorkspace();say('项目已恢复。');}));
  $('rules-file').addEventListener('change',guarded(async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(file.size>1000000)throw Error('规则文件超过 1 MB。');const pack=C.validatePack(JSON.parse(await file.text()),true);$('rules-json').value=JSON.stringify(pack,null,2);say('规则已载入编辑区，检查后点击“应用规则”。');}));
